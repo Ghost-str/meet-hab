@@ -14,7 +14,7 @@ async function bootstrap() {
 
   app.setGlobalPrefix('/api');
   makeSwaggerConfig(app);
-  
+
   await app.listen(3000, '0.0.0.0');
 }
 
