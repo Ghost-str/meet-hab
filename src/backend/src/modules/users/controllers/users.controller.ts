@@ -9,7 +9,7 @@ export class UsersController {
 
   @Post('register')
   @ApiTags('user')
-  register(@Body() createUserDto: CreateUserDto) {
+  async register(@Body() createUserDto: CreateUserDto) {
     return this.usersService.create(createUserDto);
   }
 }
