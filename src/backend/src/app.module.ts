@@ -1,11 +1,9 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import makeDatabaseConfig from './config/database';
+import { UsersModule } from './modules/users/users.module';
+import { TYPE_ORM } from './config/database';
 
 @Module({
-  imports: [makeDatabaseConfig()],
-  controllers: [AppController],
-  providers: [AppService],
+  imports: [TYPE_ORM, UsersModule],
+  exports: [TYPE_ORM],
 })
 export class AppModule {}

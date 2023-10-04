@@ -4,6 +4,7 @@
     "module": "commonjs",
     "declaration": false,
     "removeComments": true,
+    "strictPropertyInitialization": false,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
