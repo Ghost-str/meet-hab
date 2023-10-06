@@ -5,21 +5,19 @@ import { User } from '../../entities/user.entity';
 import jwt from 'jsonwebtoken';
 import { scrypt } from 'node:crypto';
 import { CreateUserDto } from '../../dto/create-user.dto';
+import { ConfigService } from '@nestjs/config';
+
+const APP_KEY = 'BACKEND_APP_KEY';
 
 @Injectable()
 export class AuthService {
-  protected appKey: string;
-  protected hashLength = 25;
+  protected hashLength = 40;
   protected expiresIn = 60 * 60 * 27 * 7;
 
-  constructor(private usersService: UsersService) {
-    const key = process.env.BACKEND_APP_KEY;
-    if (!key) {
-      throw new Error('BACKEND_APP_KEY not set');
-    }
-
-    this.appKey = key;
-  }
+  constructor(
+    private usersService: UsersService,
+    private configService: ConfigService,
+  ) {}
 
   async login(data: CredentialsDto) {
     const [user, passwordHash] = await Promise.all([
@@ -40,19 +38,31 @@ export class AuthService {
   async register(newUser: CreateUserDto) {
     const passwordHash = await this.makePasswordHash(newUser.password);
 
-    return this.usersService.create({
+    const user = await this.usersService.create({
       ...newUser,
       password: passwordHash,
     });
+
+    return {
+      authKey: this.makeAuthKey(user),
+      user,
+    };
   }
 
   protected async makePasswordHash(password: string): Promise<string> {
     return new Promise((resolv, reject) => {
-      scrypt(password, this.appKey, this.hashLength, (err, key) => {
+      let appKey: string;
+      try {
+        appKey = this.configService.getOrThrow(APP_KEY);
+      } catch (e) {
+        return reject(e);
+      }
+
+      scrypt(password, appKey, this.hashLength, (err, key) => {
         if (err) {
           return reject(err);
         } else {
-          return resolv(key.toString('utf-8'));
+          return resolv(key.toString('base64'));
         }
       });
     });
@@ -63,7 +73,7 @@ export class AuthService {
       {
         id: user.id,
       },
-      this.appKey,
+      this.configService.getOrThrow<string>(APP_KEY),
       { expiresIn: this.expiresIn },
     );
   }
