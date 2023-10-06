@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { AuthController } from './auth.controller';
 import { AuthService } from '../services/auth/auth.service';
 import { UnauthorizedException } from '@nestjs/common';
+import Response from 'src/shared-types/response';
 
 describe('AuthController', () => {
   let controller: AuthController;
@@ -13,6 +14,8 @@ describe('AuthController', () => {
     password: 'passwordP1[',
     email: 'some-email@example.com',
   };
+
+  const mockRes = {} as Response;
 
   beforeEach(async () => {
     mockAuthService = {
@@ -36,22 +39,27 @@ describe('AuthController', () => {
   });
 
   it('it throw error when wrong password', async () => {
-    const value = controller.login({
-      ...mockCredentials,
-      password: 'wrong password',
-    });
+    const value = controller.login(
+      {
+        ...mockCredentials,
+        password: 'wrong password',
+      },
+      mockRes,
+    );
 
     await expect(value).rejects.toThrow(UnauthorizedException);
   });
 
   it('it login with correct password', async () => {
-    const value = controller.login({ ...mockCredentials });
+    const value = controller.login({ ...mockCredentials }, mockRes);
 
     await expect(value).resolves.toMatchObject(mockCredentials);
   });
 
   it('it call register method of AuthService', async () => {
-    await expect(controller.register(mockUser)).resolves.toEqual(mockUser);
+    await expect(controller.register(mockUser, mockRes)).resolves.toEqual(
+      mockUser,
+    );
     expect(mockAuthService.register).toBeCalledTimes(1);
   });
 });

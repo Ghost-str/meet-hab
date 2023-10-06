@@ -6,8 +6,10 @@ import jwt from 'jsonwebtoken';
 import { scrypt } from 'node:crypto';
 import { CreateUserDto } from '../../dto/create-user.dto';
 import { ConfigService } from '@nestjs/config';
+import Response from '../../../../shared-types/response';
 
 const APP_KEY = 'BACKEND_APP_KEY';
+const SESSION_COOKIE_KEY = 'authKey';
 
 @Injectable()
 export class AuthService {
@@ -19,7 +21,7 @@ export class AuthService {
     private configService: ConfigService,
   ) {}
 
-  async login(data: CredentialsDto) {
+  async login(data: CredentialsDto, res: Response) {
     const [user, passwordHash] = await Promise.all([
       this.usersService.findByLogin(data.login),
       this.makePasswordHash(data.password),
@@ -29,13 +31,10 @@ export class AuthService {
       return null;
     }
 
-    return {
-      authKey: this.makeAuthKey(user),
-      user,
-    };
+    return this.makeResult(user, res);
   }
 
-  async register(newUser: CreateUserDto) {
+  async register(newUser: CreateUserDto, res: Response) {
     const passwordHash = await this.makePasswordHash(newUser.password);
 
     const user = await this.usersService.create({
@@ -43,8 +42,21 @@ export class AuthService {
       password: passwordHash,
     });
 
+    return this.makeResult(user, res);
+  }
+
+  protected makeResult(user: User, res: Response) {
+    const authKey = this.makeAuthKey(user);
+
+    res.setCookie(SESSION_COOKIE_KEY, authKey, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'lax',
+      maxAge: this.expiresIn,
+    });
+
     return {
-      authKey: this.makeAuthKey(user),
+      authKey,
       user,
     };
   }

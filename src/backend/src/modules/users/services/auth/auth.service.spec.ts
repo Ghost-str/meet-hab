@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { AuthService } from './auth.service';
 import { UsersService } from '../users/users.service';
 import { ConfigService } from '@nestjs/config';
+import Response from 'src/shared-types/response';
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -16,6 +17,10 @@ describe('AuthService', () => {
     password: passwordHash,
     email: 'some-email@example.com',
   };
+
+  const mockRes = {
+    setCookie: jest.fn(),
+  } as unknown as Response;
 
   beforeEach(async () => {
     UserServiceMock = {
@@ -49,23 +54,22 @@ describe('AuthService', () => {
   });
 
   it('return user and authKey when right credentials', async () => {
-    await expect(
-      service.login({ login: mockUser.login, password: password }),
-    ).resolves.toStrictEqual({
+    const credentials = { login: mockUser.login, password: password };
+
+    await expect(service.login(credentials, mockRes)).resolves.toStrictEqual({
       authKey: expect.anything(),
       user: mockUser,
     });
   });
 
   it('return null when wrong password', async () => {
-    await expect(
-      service.login({ login: mockUser.login, password: 'wrongPassword' }),
-    ).resolves.toBe(null);
+    const credentials = { login: mockUser.login, password: 'wrongPassword' };
+    await expect(service.login(credentials, mockRes)).resolves.toBe(null);
   });
 
   it('hash user password when register user', async () => {
     await expect(
-      service.register({ ...mockUser, password }),
+      service.register({ ...mockUser, password }, mockRes),
     ).resolves.toStrictEqual({
       authKey: expect.anything(),
       user: { ...mockUser, password: passwordHash },

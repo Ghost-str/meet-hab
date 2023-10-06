@@ -1,8 +1,15 @@
-import { Body, Controller, Post, UnauthorizedException } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Post,
+  Res,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { AuthService } from '../services/auth/auth.service';
 import { CredentialsDto } from '../dto/credentials.dto';
 import { CreateUserDto } from '../dto/create-user.dto';
 import { ApiTags } from '@nestjs/swagger';
+import Response from 'src/shared-types/response';
 
 @Controller('user')
 export class AuthController {
@@ -10,8 +17,11 @@ export class AuthController {
 
   @Post('login')
   @ApiTags('auth')
-  async login(@Body() cred: CredentialsDto) {
-    const user = this.authService.login(cred);
+  async login(
+    @Body() cred: CredentialsDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const user = this.authService.login(cred, res);
 
     if (!user) {
       throw new UnauthorizedException();
@@ -22,7 +32,10 @@ export class AuthController {
 
   @Post('register')
   @ApiTags('user')
-  async register(@Body() createUserDto: CreateUserDto) {
-    return this.authService.register(createUserDto);
+  async register(
+    @Body() createUserDto: CreateUserDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    return this.authService.register(createUserDto, res);
   }
 }
