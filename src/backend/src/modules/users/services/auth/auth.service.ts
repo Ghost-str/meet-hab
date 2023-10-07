@@ -21,7 +21,7 @@ export class AuthService {
     private configService: ConfigService,
   ) {}
 
-  async login(data: CredentialsDto, res: Response) {
+  async login(data: CredentialsDto, res?: Response) {
     const [user, passwordHash] = await Promise.all([
       this.usersService.findByLogin(data.login),
       this.makePasswordHash(data.password),
@@ -34,7 +34,7 @@ export class AuthService {
     return this.makeResult(user, res);
   }
 
-  async register(newUser: CreateUserDto, res: Response) {
+  async register(newUser: CreateUserDto, res?: Response) {
     const passwordHash = await this.makePasswordHash(newUser.password);
 
     const user = await this.usersService.create({
@@ -45,15 +45,17 @@ export class AuthService {
     return this.makeResult(user, res);
   }
 
-  protected makeResult(user: User, res: Response) {
+  protected makeResult(user: User, res?: Response) {
     const authKey = this.makeAuthKey(user);
 
-    res.setCookie(SESSION_COOKIE_KEY, authKey, {
-      httpOnly: true,
-      secure: true,
-      sameSite: 'lax',
-      maxAge: this.expiresIn,
-    });
+    if (res) {
+      res.setCookie(SESSION_COOKIE_KEY, authKey, {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'lax',
+        maxAge: this.expiresIn,
+      });
+    }
 
     return {
       authKey,
