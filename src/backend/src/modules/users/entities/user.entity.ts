@@ -1,7 +1,7 @@
 import { Entity, PrimaryColumn, Column } from 'typeorm';
 import { UserStatus } from '../constants';
 
-@Entity()
+@Entity('users')
 export class User {
   @PrimaryColumn('uuid')
   id: string;
