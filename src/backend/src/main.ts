@@ -8,11 +8,22 @@ import makeSwaggerConfig from './config/swagger';
 import { ValidationPipe } from '@nestjs/common';
 import { VALIDATION_PIPE_CONFIG } from './config/validation.pipe';
 import cookie, { FastifyCookieOptions } from '@fastify/cookie';
+import { WinstonModule } from 'nest-winston';
+import winston from 'winston';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
     new FastifyAdapter(),
+    {
+      logger: WinstonModule.createLogger({
+        format: winston.format.combine(
+          winston.format.timestamp(),
+          winston.format.json(),
+        ),
+        transports: [new winston.transports.Console()],
+      }),
+    },
   );
 
   app.setGlobalPrefix('/api');
