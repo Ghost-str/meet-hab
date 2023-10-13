@@ -4,7 +4,7 @@ COPY src /app
 
 WORKDIR /app/backend/
 
-RUN npm ci && npm run build
+RUN npm ci && npm run build && npm prune --production
 
 FROM node:18.18-alpine
 
