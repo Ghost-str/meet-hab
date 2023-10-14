@@ -1,0 +1,14 @@
+name: CD
+
+on:
+    workflow_dispatch: 
+
+jobs:
+    build_and_deploy:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            - name: Build containers
+              run: docker compose -f docker-compose.prod.yaml build
+            - name: List images
+              run: docker images
