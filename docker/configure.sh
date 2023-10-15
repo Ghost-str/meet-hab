@@ -7,6 +7,7 @@ Host server
     User $2
     Port $3
     PubKeyAuthentication yes
+    StrictHostKeyChecking no
     IdentityFile ~/.ssh/private_key
 EOF
 
