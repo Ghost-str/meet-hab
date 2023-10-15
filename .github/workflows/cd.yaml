@@ -12,8 +12,7 @@ jobs:
             - name: Configure ssh
               run: ./docker/configure.sh ${{ secrets.SERVER_IP }} ${{ secrets.SERVER_USER }} ${{ secrets.SERVER_PORT }}
             - name: Setup key
-              run: >
-                cat > ~/.ssh/private_key << EOF ${{ secrets.SSH_PRIVATE_KEY }} EOF
+              run: echo "${{ secrets.SSH_PRIVATE_KEY }}" >> ~/.ssh/private_key
             - name: Test connection
               run: ssh server 'echo "hello world"'
     
