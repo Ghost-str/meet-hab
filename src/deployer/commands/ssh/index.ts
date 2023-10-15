@@ -1,6 +1,6 @@
 import { Command, InvalidArgumentError } from "commander";
 import fs from "node:fs/promises";
-import { isEmpty } from 'lodash';
+import isEmpty from 'lodash/isEmpty.js';
 import execAsync from "../../utils/asyncExec.js";
 
 
