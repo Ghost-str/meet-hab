@@ -1,5 +1,7 @@
 import { Command, InvalidArgumentError } from "commander";
 import fs from "node:fs/promises";
+import os from "node:os";
+import path from "node:path";
 import isEmpty from 'lodash/isEmpty.js';
 import execAsync from "../../utils/asyncExec.js";
 
@@ -20,9 +22,11 @@ command
             throw new InvalidArgumentError('envVar is empty');
         }
 
-        await fs.mkdir('~/.ssh', { mode: 0o700});
+        const sshPath = path.join(os.homedir(), '.ssh');
+        await fs.mkdir(sshPath, { mode: 0o700});
         
-        await fs.appendFile('~/.ssh/config',`
+        const configPath = path.join(os.homedir(), '.ssh', 'config');
+        await fs.appendFile(configPath,`
 Host server
     HostName ${hostName}
     User ${user}
@@ -31,8 +35,8 @@ Host server
     StrictHostKeyChecking no
     IdentityFile ~/.ssh/private_key    
 `, { mode: 0o600 });
-
-        await fs.appendFile('~/.ssh/private_key', privateKey, { mode: 0o600});
+       const privateKeyPath = path.join(os.homedir(), '.ssh', 'private_key');
+       await fs.appendFile(privateKeyPath, privateKey, { mode: 0o600});
 
        const result = await execAsync(`ssh server 'echo "test connection"'`);
        console.log('stdout: '+ result.stdout);
