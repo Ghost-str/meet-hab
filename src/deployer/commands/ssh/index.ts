@@ -8,7 +8,7 @@ import execAsync from "../../utils/asyncExec.js";
 const command = new Command();
 
 command
-    .command('ssh')
+    .name('ssh')
     .description('setup ssh')
     .argument('<hostName>', 'ssh host name')
     .argument('<user>', 'ssh user')
