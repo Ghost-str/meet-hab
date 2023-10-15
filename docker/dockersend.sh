@@ -2,7 +2,7 @@
 
 imageIds=$(docker images -f "label=com.docker.compose.project=meet-hub" -f "dangling=false" --format "{{.ID}} {{.Repository}} {{.Tag}}")
 
-IFS="\n"
+IFS="\r\n"
 
 echo "$imageIds"
 
