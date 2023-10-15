@@ -9,10 +9,10 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v4
-            - name: Configure ssh
-              run: ./docker/configure.sh ${{ secrets.SERVER_IP }} ${{ secrets.SERVER_USER }} ${{ secrets.SERVER_PORT }}
             - name: Setup key
               run: echo "${{ secrets.SSH_PRIVATE_KEY }}" >> ~/.ssh/private_key
+            - name: Configure ssh
+              run: ./docker/configure.sh ${{ secrets.SERVER_IP }} ${{ secrets.SERVER_USER }} ${{ secrets.SERVER_PORT }}
             - name: Test connection
               run: ssh server 'echo "hello world"'
     
