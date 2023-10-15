@@ -13,5 +13,7 @@ for line in $imageIds; do
     ssh server "docker tag $dockerId $repository:$tag"
 done
 
+echo "up new containers"
 DOCKER_HOST="ssh://server" docker compose -f docker-compose up -d --remove-orphans
+echo "clean old containers"
 DOCKER_HOST="ssh://server" docker system prune -f -a

@@ -16,11 +16,9 @@ jobs:
             - name: Configure ssh
               run: ./docker/configure.sh ${{ secrets.SERVER_IP }} ${{ secrets.SERVER_USER }} ${{ secrets.SERVER_PORT }}
             - name: Test connection
-              run: ssh server 'echo "hello world"'
-    
-                
-            # - name: Build containers
-            #   run: docker compose -f docker-compose.prod.yaml build
-            # - name: Copy containers to server and compose up
-            #   run: ./docker/dockersend.sh   
+              run: ssh server 'echo "test connection"'
+            - name: Build containers
+              run: docker compose -f docker-compose.prod.yaml build
+            - name: Copy containers to server and compose up
+              run: ./docker/dockersend.sh   
             
