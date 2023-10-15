@@ -36,7 +36,7 @@ Host server
     IdentityFile ~/.ssh/private_key    
 `, { mode: 0o600 });
        const privateKeyPath = path.join(os.homedir(), '.ssh', 'private_key');
-       await fs.appendFile(privateKeyPath, privateKey, { mode: 0o600});
+       await fs.appendFile(privateKeyPath, privateKey.trim(), { mode: 0o600, encoding: "utf-8"});
 
        const result = await execAsync(`ssh server 'echo "test connection"'`);
        console.log('stdout: '+ result.stdout);
