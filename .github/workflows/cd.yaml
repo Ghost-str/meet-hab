@@ -7,8 +7,6 @@ on:
 jobs:
     build_and_deploy:
         runs-on: ubuntu-latest
-        env:
-          KEY: ${{ secrets.SSH_PRIVATE_KEY }}
         steps:
             - uses: actions/checkout@v4
             - name: Use Node.js
@@ -20,5 +18,5 @@ jobs:
             - name: Install deps
               run: cd src/deployer && npm ci
             - name: Setup ssh
-              run: cd src/deployer && npm run start -- ssh ${{ secrets.SERVER_IP }} ${{ secrets.SERVER_USER }} ${{ secrets.SERVER_PORT }} KEY
+              run: cd src/deployer && (echo "${{ secrets.SSH_PRIVATE_KEY }}" | npm run start -- ssh ${{ secrets.SERVER_IP }} ${{ secrets.SERVER_USER }} ${{ secrets.SERVER_PORT }})
             
