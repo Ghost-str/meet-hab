@@ -44,4 +44,6 @@ command
 
         await execAsync(`DOCKER_HOST="ssh://server" docker system prune -f -a`);
 
-})
+});
+
+export default command;
