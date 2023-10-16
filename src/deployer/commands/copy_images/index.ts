@@ -13,6 +13,7 @@ command
         .stdout
         .split(/\r?\n/)
         .map((str)=> {
+            console.log('str from stdout:', str);
             const result = JSON.parse(str);
 
             return {
