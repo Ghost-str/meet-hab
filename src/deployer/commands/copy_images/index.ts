@@ -1,5 +1,6 @@
 import { Command } from "commander";
 import execAsync from "../../utils/asyncExec.js";
+import { isEmpty } from "lodash";
 
 const command = new Command();
 
@@ -9,6 +10,11 @@ command
 .action(async (projectName)=> {
     const result = await execAsync(`docker images -f "label=com.docker.compose.project=${projectName}" -f "dangling=false" --format json`);
     console.log('result from stdout:', result.stdout);
+    
+    if (isEmpty(result.stdout)) {
+        throw new Error('images not build or wrong project name');
+    }
+
     const actions = result
         .stdout
         .trim()
@@ -32,7 +38,7 @@ command
 
             console.log(consolePrefix+`tagging image as ${imageProps.repository}:${imageProps.tag}`);
 
-            await execAsync(`ssh server "docker tag ${imageProps.id} ${imageProps.repository}:${imageProps.tag}`)
+            await execAsync(`ssh server "docker tag ${imageProps.id} ${imageProps.repository}:${imageProps.tag}"`)
 
         });
 
