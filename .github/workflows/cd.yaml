@@ -19,4 +19,6 @@ jobs:
               run: cd src/deployer && npm ci
             - name: Setup ssh
               run: cd src/deployer && (echo "${{ secrets.SSH_PRIVATE_KEY }}" | npm run start -- ssh ${{ secrets.SERVER_IP }} ${{ secrets.SERVER_USER }} ${{ secrets.SERVER_PORT }})
+            - name: Deploy
+              run: cd src/deployer && npm run start -- deploy meet-hub
             
