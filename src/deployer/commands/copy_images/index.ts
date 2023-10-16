@@ -4,7 +4,7 @@ import execAsync from "../../utils/asyncExec.js";
 const command = new Command();
 
 command
-.name('deploy')
+.name('copy-images')
 .argument('<projectName>', 'docker project name')
 .action(async (projectName)=> {
     const result = await execAsync(`docker images -f "label=com.docker.compose.project=${projectName}" -f "dangling=false" --format json`);
