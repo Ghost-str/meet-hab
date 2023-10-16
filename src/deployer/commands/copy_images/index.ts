@@ -11,6 +11,7 @@ command
     console.log('result from stdout:', result.stdout);
     const actions = result
         .stdout
+        .trim()
         .split(/\r?\n/)
         .map((str)=> {
             console.log('str from stdout:', str);
