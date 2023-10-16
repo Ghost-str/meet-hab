@@ -8,7 +8,7 @@ command
 .argument('<projectName>', 'docker project name')
 .action(async (projectName)=> {
     const result = await execAsync(`docker images -f "label=com.docker.compose.project=${projectName}" -f "dangling=false" --format json`);
-
+    console.log('result from stdout:', result.stdout);
     const actions = result
         .stdout
         .split(/\r?\n/)
