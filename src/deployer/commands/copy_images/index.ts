@@ -46,7 +46,7 @@ command
 
         console.log('up new containers');
 
-        await execAsync(`DOCKER_HOST="ssh://server" docker compose -f docker-compose up -d --remove-orphans`);
+        await execAsync(`DOCKER_HOST="ssh://server" docker compose -f ../../docker-compose.prod.yaml up -d --remove-orphans`);
 
         console.log(`clean old containers`);
 
