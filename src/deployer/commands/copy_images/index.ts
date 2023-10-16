@@ -1,6 +1,6 @@
 import { Command } from "commander";
 import execAsync from "../../utils/asyncExec.js";
-import { isEmpty } from "lodash";
+import isEmpty from "lodash/isEmpty.js";
 
 const command = new Command();
 
