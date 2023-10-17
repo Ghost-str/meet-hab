@@ -6,7 +6,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import UsersSeeder from './users-seeder';
 import { UsersModule } from '../modules/users/users.module';
 
-
 const TYPE_ORM = makeTypeOrmModule();
 
 seeder({

@@ -1,9 +1,8 @@
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DataSourceOptions } from 'typeorm';
 
-
 export function makeDataSourceConfig(): DataSourceOptions {
-  return   {
+  return {
     type: 'postgres',
     host: process.env.POSTGRES_HOST,
     port: +(process.env.POSTGRES_PORT || 5432),
@@ -11,12 +10,12 @@ export function makeDataSourceConfig(): DataSourceOptions {
     password: process.env.POSTGRES_PASSWORD,
     database: process.env.POSTGRES_DB,
     synchronize: false,
-  }
+  };
 }
 
 export function makeTypeOrmModule() {
   return TypeOrmModule.forRoot({
-  ...makeDataSourceConfig(),
-  autoLoadEntities: true,
-});
+    ...makeDataSourceConfig(),
+    autoLoadEntities: true,
+  });
 }

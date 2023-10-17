@@ -4,7 +4,6 @@ import { makeTypeOrmModule } from './config/database';
 import { ConfigModule } from '@nestjs/config';
 import config from './config/config.options';
 
-
 const TYPE_ORM = makeTypeOrmModule();
 
 @Module({
