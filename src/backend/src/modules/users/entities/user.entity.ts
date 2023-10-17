@@ -1,8 +1,18 @@
 import { Entity, PrimaryColumn, Column } from 'typeorm';
 import { UserStatus } from '../constants';
 
+
+export interface IUser {
+  id: string;
+  login: string;
+  password: string;
+  email: string;
+  status: UserStatus;
+  role: string;
+}
+
 @Entity('users')
-export class User {
+export class User implements IUser {
   @PrimaryColumn('uuid')
   id: string;
 
