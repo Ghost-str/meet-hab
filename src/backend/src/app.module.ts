@@ -1,10 +1,13 @@
 import { Module } from '@nestjs/common';
 import { UsersModule } from './modules/users/users.module';
-import { TYPE_ORM } from './config/database';
+import { makeTypeOrmModule } from './config/database';
 import { ConfigModule } from '@nestjs/config';
+import config from './config/config.options';
+
+
+const TYPE_ORM = makeTypeOrmModule();
 
 @Module({
-  imports: [TYPE_ORM, UsersModule, ConfigModule.forRoot({ isGlobal: true })],
-  exports: [TYPE_ORM],
+  imports: [ConfigModule.forRoot(config), TYPE_ORM, UsersModule],
 })
 export class AppModule {}

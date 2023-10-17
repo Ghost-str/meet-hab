@@ -1,7 +1,7 @@
 import { DataSource } from 'typeorm';
-import { config } from './database';
+import { makeDataSourceConfig } from './database';
 
 export default new DataSource({
-  ...config,
+  ...makeDataSourceConfig(),
   migrations: ['src/migrations/*'],
 });
