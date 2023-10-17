@@ -19,6 +19,8 @@ jobs:
               run: cd src/deployer && npm ci
             - name: Setup ssh
               run: cd src/deployer && (echo "${{ secrets.SSH_PRIVATE_KEY }}" | npm run start -- ssh ${{ secrets.SERVER_IP }} ${{ secrets.SERVER_USER }} ${{ secrets.SERVER_PORT }})
+            - name: Create production .env
+              run: echo "${{ secrets.PRODUCTION_ENV }}" >> .env.production
             - name: Build images
               run: docker compose -f docker-compose.prod.yaml build
             - name: Deploy
