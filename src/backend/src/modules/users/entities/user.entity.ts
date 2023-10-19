@@ -1,5 +1,6 @@
 import { Entity, PrimaryColumn, Column } from 'typeorm';
 import { UserStatus } from '../constants';
+import type { UserRole } from './userRoles';
 
 export interface IUser {
   id: string;
@@ -7,7 +8,7 @@ export interface IUser {
   password: string;
   email: string;
   status: UserStatus;
-  role: string;
+  role: UserRole;
 }
 
 @Entity('users')
@@ -28,5 +29,5 @@ export class User implements IUser {
   status: UserStatus;
 
   @Column('varchar', { nullable: false, length: 255 })
-  role: string;
+  role: UserRole;
 }

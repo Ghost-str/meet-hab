@@ -56,7 +56,7 @@ export class AuthService {
     const authKey = await this.makeAuthKey(user);
 
     if (res) {
-     const value = cookie.serialize(SESSION_COOKIE_KEY, authKey,{
+      const value = cookie.serialize(SESSION_COOKIE_KEY, authKey, {
         httpOnly: true,
         secure: true,
         sameSite: 'lax',
