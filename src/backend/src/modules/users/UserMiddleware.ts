@@ -1,75 +1,76 @@
-import { Injectable, NestMiddleware } from "@nestjs/common";
-import { FastifyReply, FastifyRequest } from "fastify";
-import { SESSION_COOKIE_KEY } from "./constants";
+import { Injectable, NestMiddleware } from '@nestjs/common';
+import { FastifyReply, FastifyRequest } from 'fastify';
+import { SESSION_COOKIE_KEY } from './constants';
 import cookie from 'cookie';
-import { IUser } from "./entities/user.entity";
-import isEmpty from "lodash/isEmpty";
-import { AuthService } from "./services/auth/auth.service";
+import isEmpty from 'lodash/isEmpty';
+import { AuthService } from './services/auth/auth.service';
+import { UserLocalStorage } from './UserLocalStorage';
 
-const REG_EXP = /^Bearer\s+([a-zA-Z_0-9.-]+)$/gm
+const REG_EXP = /^Bearer\s+([a-zA-Z_0-9.-]+)$/gm;
 
 @Injectable()
 export class UserMiddleware implements NestMiddleware {
+  constructor(
+    private readonly authService: AuthService,
+    private readonly userLocalStorage: UserLocalStorage,
+  ) {}
 
-    constructor(private readonly authService: AuthService) {}
+  async use(
+    req: FastifyRequest,
+    res: FastifyReply,
+    next: (error?: unknown) => void,
+  ) {
+    const user = await this.getUser(req);
 
-   async use(req: FastifyRequest, res: FastifyReply, next: (error?: any) => void) {
-       const user = await this.getUser(req);
+    this.userLocalStorage.run(user, () => next());
+  }
 
-       
-        
-       next();
+  async getUser(req: FastifyRequest) {
+    const token = this.getToken(req);
+
+    return this.authService.auth(token);
+  }
+
+  getToken(req: FastifyRequest): string | undefined {
+    const val = this.tryExtractFromAuthorization(req);
+
+    if (val) {
+      return val;
     }
 
-    async getUser(req: FastifyRequest) {
+    return this.tryExtractFromCookie(req);
+  }
 
-        const token = this.getToken(req);
-        return this.authService.auth(token);
+  tryExtractFromAuthorization(req: FastifyRequest): undefined | string {
+    if (isEmpty(req.headers.authorization)) {
+      return undefined;
     }
 
-    getToken(req: FastifyRequest):  string | undefined {
-        const val = this.tryExtractFromAuthorization(req);
+    const result = REG_EXP.exec(req.headers.authorization!);
 
-       if (val) {
-        return val;
-       }
-
-       return this.tryExtractFromCookie(req);
+    if (isEmpty(result)) {
+      return undefined;
     }
 
+    return result![0];
+  }
 
-    tryExtractFromAuthorization(req: FastifyRequest): undefined | string {
-           if (isEmpty(req.headers.authorization)) {
-                return undefined;
-           }
-
-           const result =  REG_EXP.exec(req.headers.authorization!);
-
-           if (isEmpty(result)) {
-            return undefined;
-           }
-
-          return result![0]
+  tryExtractFromCookie(req: FastifyRequest): undefined | string {
+    if (isEmpty(req.headers.cookie)) {
+      return undefined;
     }
 
+    try {
+      const result = cookie.parse(req.headers.cookie!);
+      const token = result[SESSION_COOKIE_KEY];
 
-    tryExtractFromCookie(req: FastifyRequest): undefined | string {
-        if (isEmpty(req.headers.cookie)) {
-            return undefined;
-        }
+      if (isEmpty(token)) {
+        return undefined;
+      }
 
-        try {
-        const result = cookie.parse(req.headers.cookie!);
-        const token = result[SESSION_COOKIE_KEY];
-
-        if (isEmpty(token)) {
-            return undefined;
-        }
-
-        return token;
-
-        } finally {
-            return undefined;
-        }
+      return token;
+    } finally {
+      return undefined;
     }
+  }
 }

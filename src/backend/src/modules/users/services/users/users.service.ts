@@ -39,7 +39,6 @@ export class UsersService {
     return fUser ?? UsersService.getNullUser();
   }
 
-
   static getNullUser() {
     return new NullUser();
   }

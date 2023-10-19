@@ -11,11 +11,7 @@ const TYPE_ORM = makeTypeOrmModule();
   imports: [ConfigModule.forRoot(config), TYPE_ORM, UsersModule],
 })
 export class AppModule implements NestModule {
-
   configure(consumer: MiddlewareConsumer) {
-    consumer
-      .apply(UserMiddleware)
-      .forRoutes('*')
+    consumer.apply(UserMiddleware).forRoutes('*');
   }
 }
-  

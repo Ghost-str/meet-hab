@@ -7,8 +7,6 @@ import Response from '../../../../shared-types/response';
 import { JwtService } from '@nestjs/jwt';
 import { HashService } from '../HashService';
 import { SESSION_COOKIE_KEY } from '../../constants';
-import get from 'lodash/get'; 
-
 
 @Injectable()
 export class AuthService {
@@ -18,7 +16,7 @@ export class AuthService {
   constructor(
     private readonly usersService: UsersService,
     private readonly hashService: HashService,
-    private readonly jwtService: JwtService, 
+    private readonly jwtService: JwtService,
   ) {}
 
   async login(data: CredentialsDto, res?: Response) {
@@ -26,7 +24,6 @@ export class AuthService {
       this.usersService.findByLogin(data.login),
       this.hashService.hash(data.password),
     ]);
-
 
     return user.password !== passwordHash ? this.makeResult(user, res) : null;
   }
@@ -47,10 +44,10 @@ export class AuthService {
       return UsersService.getNullUser();
     }
     try {
-    const {id}= await this.jwtService.verifyAsync<{id: string}>(token);
-    return this.usersService.findById(id);
+      const { id } = await this.jwtService.verifyAsync<{ id: string }>(token);
+      return this.usersService.findById(id);
     } finally {
-      return UsersService.getNullUser()
+      return UsersService.getNullUser();
     }
   }
 
@@ -72,10 +69,12 @@ export class AuthService {
     };
   }
 
-
   protected makeAuthKey(user: IUser): Promise<string> {
-   return this.jwtService.signAsync({
-      id: user.id,
-    },{ expiresIn: this.expiresIn } );
+    return this.jwtService.signAsync(
+      {
+        id: user.id,
+      },
+      { expiresIn: this.expiresIn },
+    );
   }
 }

@@ -5,20 +5,15 @@ import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class HashService {
+  private secret: Buffer;
 
-    private secret: Buffer;
+  constructor(private configService: ConfigService) {
+    this.secret = Buffer.from(this.configService.getOrThrow(APP_KEY));
+  }
 
-    constructor(
-        private configService: ConfigService,
-    ) {
-        this.secret = Buffer.from(this.configService.getOrThrow(APP_KEY))
-    }
-
-
-    async hash(password: string): Promise<string> {
-     return argon2.hash(password, { 
-        secret: this.secret
-      })
-    }
+  async hash(password: string): Promise<string> {
+    return argon2.hash(password, {
+      secret: this.secret,
+    });
+  }
 }
-

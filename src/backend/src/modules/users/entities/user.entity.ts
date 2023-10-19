@@ -1,7 +1,6 @@
 import { Entity, PrimaryColumn, Column } from 'typeorm';
 import { UserStatus } from '../constants';
 
-
 export interface IUser {
   id: string;
   login: string;

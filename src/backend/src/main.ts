@@ -7,7 +7,6 @@ import { AppModule } from './app.module';
 import makeSwaggerConfig from './config/swagger';
 import { ValidationPipe } from '@nestjs/common';
 import { VALIDATION_PIPE_CONFIG } from './config/validation.pipe';
-import cookie, { FastifyCookieOptions } from '@fastify/cookie';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
