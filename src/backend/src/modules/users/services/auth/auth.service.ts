@@ -1,15 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { CredentialsDto } from '../../dto/credentials.dto';
-import { User } from '../../entities/user.entity';
-import jwt from 'jsonwebtoken';
-import { scrypt } from 'node:crypto';
+import { IUser } from '../../entities/user.entity';
 import { CreateUserDto } from '../../dto/create-user.dto';
-import { ConfigService } from '@nestjs/config';
 import Response from '../../../../shared-types/response';
-
-const APP_KEY = 'BACKEND_APP_KEY';
-const SESSION_COOKIE_KEY = 'authKey';
+import { JwtService } from '@nestjs/jwt';
+import { HashService } from '../HashService';
+import { SESSION_COOKIE_KEY } from '../../constants';
+import cookie from 'cookie';
 
 @Injectable()
 export class AuthService {
@@ -17,44 +15,54 @@ export class AuthService {
   protected expiresIn = 60 * 60 * 27 * 7;
 
   constructor(
-    private usersService: UsersService,
-    private configService: ConfigService,
+    private readonly usersService: UsersService,
+    private readonly hashService: HashService,
+    private readonly jwtService: JwtService,
   ) {}
 
   async login(data: CredentialsDto, res?: Response) {
     const [user, passwordHash] = await Promise.all([
       this.usersService.findByLogin(data.login),
-      this.makePasswordHash(data.password),
+      this.hashService.hash(data.password),
     ]);
 
-    if (!user || user.password !== passwordHash) {
-      return null;
-    }
-
-    return this.makeResult(user, res);
+    return user.password !== passwordHash ? this.makeResult(user, res) : null;
   }
 
   async register(newUser: CreateUserDto, res?: Response) {
-    const passwordHash = await this.makePasswordHash(newUser.password);
+    const password = await this.hashService.hash(newUser.password);
 
     const user = await this.usersService.create({
       ...newUser,
-      password: passwordHash,
+      password,
     });
 
     return this.makeResult(user, res);
   }
 
-  protected makeResult(user: User, res?: Response) {
-    const authKey = this.makeAuthKey(user);
+  async auth(token?: string): Promise<IUser> {
+    if (!token) {
+      return UsersService.getNullUser();
+    }
+    try {
+      const { id } = await this.jwtService.verifyAsync<{ id: string }>(token);
+      return this.usersService.findById(id);
+    } finally {
+      return UsersService.getNullUser();
+    }
+  }
+
+  protected async makeResult(user: IUser, res?: Response) {
+    const authKey = await this.makeAuthKey(user);
 
     if (res) {
-      res.setCookie(SESSION_COOKIE_KEY, authKey, {
+      const value = cookie.serialize(SESSION_COOKIE_KEY, authKey, {
         httpOnly: true,
         secure: true,
         sameSite: 'lax',
         maxAge: this.expiresIn,
       });
+      res.header('Set-Cookie', value);
     }
 
     return {
@@ -63,31 +71,11 @@ export class AuthService {
     };
   }
 
-  protected async makePasswordHash(password: string): Promise<string> {
-    return new Promise((resolv, reject) => {
-      let appKey: string;
-      try {
-        appKey = this.configService.getOrThrow(APP_KEY);
-      } catch (e) {
-        return reject(e);
-      }
-
-      scrypt(password, appKey, this.hashLength, (err, key) => {
-        if (err) {
-          return reject(err);
-        } else {
-          return resolv(key.toString('base64'));
-        }
-      });
-    });
-  }
-
-  protected makeAuthKey(user: User): string {
-    return jwt.sign(
+  protected makeAuthKey(user: IUser): Promise<string> {
+    return this.jwtService.signAsync(
       {
         id: user.id,
       },
-      this.configService.getOrThrow<string>(APP_KEY),
       { expiresIn: this.expiresIn },
     );
   }

@@ -1,9 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { CreateUserDto } from '../../dto/create-user.dto';
-import { User } from '../../entities/user.entity';
+import { IUser, User } from '../../entities/user.entity';
 import { Repository } from 'typeorm';
-import { DEFAULT_ROLE, UserStatus } from '../../constants';
+import { UserStatus } from '../../constants';
 import { InjectRepository } from '@nestjs/typeorm';
+import { NullUser } from '../NullUser';
+import { DEFAULT_ROLE } from '../../entities/userRoles';
 
 @Injectable()
 export class UsersService {
@@ -20,10 +22,25 @@ export class UsersService {
     });
   }
 
-  async findByLogin(login: string) {
-    return this.userRepository.findOneBy({
+  async findByLogin(login: string): Promise<IUser> {
+    const fUser = await this.userRepository.findOneBy({
       login,
       status: UserStatus.Active,
     });
+
+    return fUser ?? UsersService.getNullUser();
+  }
+
+  async findById(id: string): Promise<IUser> {
+    const fUser = await this.userRepository.findOneBy({
+      id,
+      status: UserStatus.Active,
+    });
+
+    return fUser ?? UsersService.getNullUser();
+  }
+
+  static getNullUser() {
+    return new NullUser();
   }
 }
