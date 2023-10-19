@@ -7,6 +7,7 @@ import Response from '../../../../shared-types/response';
 import { JwtService } from '@nestjs/jwt';
 import { HashService } from '../HashService';
 import { SESSION_COOKIE_KEY } from '../../constants';
+import cookie from 'cookie';
 
 @Injectable()
 export class AuthService {
@@ -55,12 +56,13 @@ export class AuthService {
     const authKey = await this.makeAuthKey(user);
 
     if (res) {
-      res.setCookie(SESSION_COOKIE_KEY, authKey, {
+     const value = cookie.serialize(SESSION_COOKIE_KEY, authKey,{
         httpOnly: true,
         secure: true,
         sameSite: 'lax',
         maxAge: this.expiresIn,
       });
+      res.header('Set-Cookie', value);
     }
 
     return {
