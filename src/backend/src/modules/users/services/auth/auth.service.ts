@@ -6,9 +6,9 @@ import { CreateUserDto } from '../../dto/create-user.dto';
 import Response from '../../../../shared-types/response';
 import { JwtService } from '@nestjs/jwt';
 import { HashService } from '../HashService';
+import { SESSION_COOKIE_KEY } from '../../constants';
+import get from 'lodash/get'; 
 
-const APP_KEY = 'BACKEND_APP_KEY';
-const SESSION_COOKIE_KEY = 'authKey';
 
 @Injectable()
 export class AuthService {
@@ -16,8 +16,8 @@ export class AuthService {
   protected expiresIn = 60 * 60 * 27 * 7;
 
   constructor(
-    private usersService: UsersService,
-    private hashService: HashService,
+    private readonly usersService: UsersService,
+    private readonly hashService: HashService,
     private readonly jwtService: JwtService, 
   ) {}
 
@@ -40,6 +40,18 @@ export class AuthService {
     });
 
     return this.makeResult(user, res);
+  }
+
+  async auth(token?: string): Promise<IUser> {
+    if (!token) {
+      return UsersService.getNullUser();
+    }
+    try {
+    const {id}= await this.jwtService.verifyAsync<{id: string}>(token);
+    return this.usersService.findById(id);
+    } finally {
+      return UsersService.getNullUser()
+    }
   }
 
   protected async makeResult(user: IUser, res?: Response) {

@@ -27,6 +27,20 @@ export class UsersService {
       status: UserStatus.Active,
     });
 
-    return fUser ?? new NullUser();
+    return fUser ?? UsersService.getNullUser();
+  }
+
+  async findById(id: string): Promise<IUser> {
+    const fUser = await this.userRepository.findOneBy({
+      id,
+      status: UserStatus.Active,
+    });
+
+    return fUser ?? UsersService.getNullUser();
+  }
+
+
+  static getNullUser() {
+    return new NullUser();
   }
 }

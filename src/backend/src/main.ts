@@ -18,10 +18,6 @@ async function bootstrap() {
   app.setGlobalPrefix('/api');
   app.useGlobalPipes(new ValidationPipe(VALIDATION_PIPE_CONFIG));
 
-  app.register(cookie, {
-    secret: process.env.BACKEND_APP_KEY,
-  } as FastifyCookieOptions);
-
   makeSwaggerConfig(app);
 
   await app.listen(3000, '0.0.0.0');

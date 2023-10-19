@@ -49,7 +49,7 @@ export function validate(config: Record<string, unknown>) {
 
 const config: ConfigModuleOptions = {
   isGlobal: true,
-  validate,
+  // validate,
   cache: true,
   ignoreEnvFile: true,
 };
